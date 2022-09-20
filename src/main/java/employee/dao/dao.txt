@@ -1,0 +1,187 @@
+package employee.dao;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
+#if(!${table.importedKeys.isEmpty()})
+import javax.persistence.criteria.Join;
+#end
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
+import employee.entity.${table.className};
+import employee.entity.${table.className}_;
+
+
+#foreach(${column} in ${table.nestedImportedKeys})
+import employee.entity.${column.relationTable.className}_;
+import employee.entity.${column.relationTable.className};
+#end
+#foreach(${relationColumn} in ${table.exportedKeys})
+import employee.entity.${relationColumn.table.className};
+#end
+
+public class ${table.className}Dao {
+
+	EntityManager entityManager;
+	
+	public ${table.className}Dao(EntityManager entityManager) {
+		
+		this.entityManager = entityManager;
+	}
+	
+	public static boolean isNotEmpty(Object object){
+		
+		return object != null && !object.toString().trim().isEmpty() && !"0".equals(object.toString().trim());
+	}
+	
+	public List<${table.className}> search${table.className}s(${table.className} ${table.propertyName}Search) throws Exception {
+
+		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+
+		CriteriaQuery<${table.className}> criteria = builder.createQuery(${table.className}.class);
+
+		Root<${table.className}> ${table.propertyName} = criteria.from(${table.className}.class);
+		
+		#foreach(${column} in ${table.nestedImportedKeys})
+		Join<${column.table.className}, ${column.relationTable.className}> ${column.relationTable.propertyName} = ${column.table.propertyName}.join(${column.table.className}_.${column.relationPropertyName});
+		#end
+
+		List<Predicate> predicates = new ArrayList<Predicate>();
+		
+		#foreach(${nestedColumn} in ${table.nestedColumns})
+		if(${nestedColumn.checkNull} && isNotEmpty(${nestedColumn.fieldModelGetter})){
+			predicates.add(builder.equal(${nestedColumn.table.propertyName}.get(${nestedColumn.table.className}_.${nestedColumn.propertyName}), ${nestedColumn.fieldModelGetter}));
+		}
+		#end
+				
+		criteria.select(${table.propertyName}).where(predicates.toArray(new Predicate[]{}));
+		
+		criteria.orderBy(builder.asc(${table.propertyName}.get(${table.className}_.id)));
+
+		TypedQuery<${table.className}> query = entityManager.createQuery(criteria);
+
+		query.setFirstResult(${table.propertyName}Search.getOffset());
+		query.setMaxResults(${table.propertyName}Search.getRowCount());
+
+		return query.getResultList();
+	}
+
+	public ${table.className} get${table.className}Count(${table.className} ${table.propertyName}Search) throws Exception {
+
+		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+
+		CriteriaQuery<Long> criteria = builder.createQuery(Long.class);
+
+		Root<${table.className}> ${table.propertyName} = criteria.from(${table.className}.class);
+		
+		#foreach(${column} in ${table.nestedImportedKeys})
+		Join<${column.table.className}, ${column.relationTable.className}> ${column.relationTable.propertyName} = ${column.table.propertyName}.join(${column.table.className}_.${column.relationPropertyName});
+		#end
+		
+		List<Predicate> predicates = new ArrayList<Predicate>();
+		
+		#foreach(${nestedColumn} in ${table.nestedColumns})
+		if(${nestedColumn.checkNull} && isNotEmpty(${nestedColumn.fieldModelGetter})){
+			predicates.add(builder.equal(${nestedColumn.table.propertyName}.get(${nestedColumn.table.className}_.${nestedColumn.propertyName}), ${nestedColumn.fieldModelGetter}));
+		}
+		#end
+		
+		criteria = criteria.select(builder.count(${table.propertyName}.get(${table.className}_.id)))
+							.where(predicates.toArray(new Predicate[]{}));
+
+		TypedQuery<Long> query = entityManager.createQuery(criteria);
+
+		${table.propertyName}Search.setTotalRows(query.getSingleResult().intValue());
+
+		return ${table.propertyName}Search;
+	}
+	
+	public ${table.className} get${table.className}(${table.className} ${table.propertyName}) throws Exception {
+
+		return entityManager.find(${table.className}.class, ${table.propertyName}.getId());
+	}
+	
+	public ${table.className} save${table.className}(${table.className} ${table.propertyName}) throws Exception {
+		
+		#foreach(${relationColumn} in ${table.importedKeys})
+		#if(!${relationColumn.primaryKey})
+		if (${table.propertyName}.get${relationColumn.relationMethodName}().getId() == null) {
+
+			${table.propertyName}.get${relationColumn.relationMethodName}().setActive(true);
+			${table.propertyName}.get${relationColumn.relationMethodName}().setCreationUser("Test");
+			${table.propertyName}.get${relationColumn.relationMethodName}().setCreationDate(new Timestamp(System.currentTimeMillis()));
+
+		} else {
+
+			${table.propertyName}.get${relationColumn.relationMethodName}().setUpdateUser("Test");
+			${table.propertyName}.get${relationColumn.relationMethodName}().setUpdateDate(new Timestamp(System.currentTimeMillis()));
+		}
+		#end
+		#end
+		
+		#foreach(${relationColumn} in ${table.exportedKeys})
+		for(${relationColumn.table.className} ${relationColumn.table.propertyName} : ${table.propertyName}.get${relationColumn.table.className}s()){
+			
+			${relationColumn.table.propertyName}.set${relationColumn.relationMethodName}(${table.propertyName});
+			
+			if (${relationColumn.table.propertyName}.getId() == null) {
+
+				${relationColumn.table.propertyName}.setActive(true);
+				${relationColumn.table.propertyName}.setCreationUser("Test");
+				${relationColumn.table.propertyName}.setCreationDate(new Timestamp(System.currentTimeMillis()));
+
+			} else {
+
+				${relationColumn.table.propertyName}.setUpdateUser("Test");
+				${relationColumn.table.propertyName}.setUpdateDate(new Timestamp(System.currentTimeMillis()));
+			}
+		}
+		#end
+		
+		if (${table.propertyName}.getId() == null) {
+
+			${table.propertyName}.setActive(true);
+			${table.propertyName}.setCreationUser("Test");
+			${table.propertyName}.setCreationDate(new Timestamp(System.currentTimeMillis()));
+			
+			entityManager.persist(${table.propertyName});
+
+		} else {
+
+			${table.propertyName}.setUpdateUser("Test");
+			${table.propertyName}.setUpdateDate(new Timestamp(System.currentTimeMillis()));
+			
+			entityManager.merge(${table.propertyName});
+		}
+		
+		return ${table.propertyName};
+	}
+	
+	public ${table.className} update${table.className}Active(${table.className} ${table.propertyName}) throws Exception {
+		
+		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+		
+        CriteriaUpdate<${table.className}> criteria = builder.createCriteriaUpdate(${table.className}.class);
+        
+        Root<${table.className}> root = criteria.from(${table.className}.class);
+        
+        criteria.set(root.get(${table.className}_.updateDate), new Timestamp(System.currentTimeMillis()));
+        criteria.set(root.get(${table.className}_.updateUser), "Test");
+        criteria.set(root.get(${table.className}_.active), ${table.propertyName}.getActive());
+        criteria.where(builder.equal(root.get(${table.className}_.${table.primaryColumn.propertyName}), ${table.propertyName}.getId()));
+        
+        Query query = entityManager.createQuery(criteria);
+        
+        query.executeUpdate();
+        
+		return ${table.propertyName};
+	}
+}

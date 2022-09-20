@@ -1,0 +1,53 @@
+package employee.bean;
+
+import java.util.List;
+
+import javax.ejb.LocalBean;
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import employee.dao.${table.className}Dao;
+import employee.entity.${table.className};
+
+@Stateless
+@LocalBean
+public class ${table.className}Bean {
+
+	${table.className}Dao ${table.propertyName}Dao;
+	
+	EntityManager entityManager;
+	
+	@PersistenceContext
+	public void setEntityManager(EntityManager entityManager) {
+		
+		this.entityManager = entityManager;
+		
+		${table.propertyName}Dao = new ${table.className}Dao(entityManager);
+	}
+	
+	public List<${table.className}> search${table.className}s(${table.className} ${table.propertyName}Search) throws Exception {
+		
+		return ${table.propertyName}Dao.search${table.className}s(${table.propertyName}Search);
+	}
+	
+	public ${table.className} get${table.className}Count(${table.className} ${table.propertyName}Search) throws Exception {
+		
+		return ${table.propertyName}Dao.get${table.className}Count(${table.propertyName}Search);
+	}
+	
+	public ${table.className} get${table.className}(${table.className} ${table.propertyName}) throws Exception {
+
+		return ${table.propertyName}Dao.get${table.className}(${table.propertyName});
+	}
+	
+	public ${table.className} save${table.className}(${table.className} ${table.propertyName}) throws Exception {
+		
+		return ${table.propertyName}Dao.save${table.className}(${table.propertyName});
+	}
+	
+	public ${table.className} update${table.className}Active(${table.className} ${table.propertyName}) throws Exception {
+		
+		return ${table.propertyName}Dao.update${table.className}Active(${table.propertyName});
+	}
+}

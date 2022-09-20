@@ -1,0 +1,252 @@
+<%@ taglib prefix="s" uri="/struts-tags" %>
+
+<h4 class="pb-2 mt-4 mb-3 border-bottom">
+	<s:if test="${table.propertyName}.id == null">
+		Add ${table.title}
+	</s:if>
+	<s:if test="${table.propertyName}.id != null">
+		Edit ${table.title}
+	</s:if>
+</h4>
+
+<s:form id="form" action="save${table.className}">
+
+	<div class="card mt-4">
+		<div class="card-header fw-bold">
+			${table.title} Details
+		</div>
+		<div class="card-body">
+		
+			<div class="row">
+				#foreach(${column} in ${table.columns})
+				#if(${column.propertyName} != "id" && !${column.activeOrDateOrUser} && !${column.relationTable})
+				<div class="col-sm-12 col-md-6 col-lg-4">
+					<div class="mb-3">
+						<label for="${column.table.propertyName}${column.methodName}" class="form-label">${column.title}</label>
+						<s:textfield id="${column.table.propertyName}${column.methodName}" name="${table.propertyName}.${column.fieldModel}" type="${column.inputType}" class="${column.inputClass}" placeholder="${column.title}" maxlength="${column.length}" autocomplete="off" />
+					</div>
+				</div>
+				#end
+				#end
+			</div>
+		
+		</div>
+	</div>
+	
+	#foreach(${relationColumn} in ${table.importedKeys})
+	<div class="card mt-4">
+		<div class="card-header fw-bold">
+			${relationColumn.relationTable.title} Details
+		</div>
+		<div class="card-body">
+			<div class="row">
+				#foreach(${column} in ${relationColumn.relationTable.columns})
+				#if(${column.propertyName} != "id" && !${column.activeOrDateOrUser} && !${column.relationTable})
+				<div class="col-sm-12 col-md-6 col-lg-4">
+					<div class="mb-3">
+						<label for="${column.table.propertyName}${column.methodName}" class="form-label">${column.title}</label>
+						<s:textfield id="${relationColumn.relationTable.propertyName}${column.methodName}" name="${table.propertyName}.${relationColumn.relationPropertyName}.${column.fieldModel}" type="${column.inputType}" class="${column.inputClass}" placeholder="${column.title}" maxlength="${column.length}" autocomplete="off" />
+					</div>
+				</div>
+				#end
+				#end
+			</div>
+		</div>
+	</div>
+	#end
+	
+	#foreach(${relationColumn} in ${table.exportedKeys})
+	<div class="card mt-4">
+		<div class="card-header fw-bold">
+			${relationColumn.table.title} List
+		</div>
+		<div class="table-responsive">
+			<table id="${relationColumn.table.propertyName}List" class="table table-striped">
+				<thead>
+					<tr>
+						<th>
+							#
+						</th>
+						#foreach(${column} in ${relationColumn.table.columns})
+						#if(${column.propertyName} != "id" && !${column.activeOrDateOrUser} && ${column.relationTable.name} != ${table.name})
+						<th>
+							${column.title}
+						</th>
+						#end
+						#end
+						<th>
+							<button type="button" class="btn btn-dark" onclick="add${relationColumn.table.className}()">Add</button>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<s:iterator value="${table.propertyName}.${relationColumn.table.propertyName}s" status="status">
+					<s:if test="active">
+					<tr>
+						<td>
+							<label class="index">
+								<s:property value="#status.count"/>
+							</label>
+							<s:hidden name="${table.propertyName}.${relationColumn.table.propertyName}s[%{#status.index}].id" />
+							<s:hidden name="${table.propertyName}.${relationColumn.table.propertyName}s[%{#status.index}].active" class="${relationColumn.table.propertyName}sActives" />
+						</td>
+						#foreach(${column} in ${relationColumn.table.columns})
+						#if(${column.propertyName} != "id" && !${column.activeOrDateOrUser} && ${column.relationTable.name} != ${table.name})
+						<td>
+							<div class="mb-3">
+								<s:textfield id="${column.propertyName}" name="${table.propertyName}.${relationColumn.table.propertyName}s[%{#status.index}].${column.propertyName}" type="${column.inputType}" class="${column.inputClass}" placeholder="${column.title}" maxlength="${column.length}" autocomplete="off" />
+							</div>
+						</td>
+						#end
+						#end
+						<th>
+							<button type="button" class="btn btn-dark" onclick="add${relationColumn.table.className}(parentNode.parentNode.rowIndex -1)">+</button>
+							<button type="button" class="btn btn-dark" onclick="delete${relationColumn.table.className}(parentNode.parentNode.rowIndex -1)">-</button>
+						</th>
+					</tr>
+					</s:if>
+					</s:iterator>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	#end
+	
+	<div class="text-center mt-4">
+		<s:a class="btn btn-dark" onclick="submitForm(); return false;">
+			<s:if test="${table.propertyName}.id == null">
+				Add ${table.title}
+			</s:if>
+			<s:if test="${table.propertyName}.id != null">
+				Update ${table.title}
+			</s:if>
+		</s:a>
+		<s:a class="btn btn-dark" action="/">Close</s:a>
+	</div>
+	
+	<div class="modal fade" id="confirmModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">
+						<s:if test="${table.propertyName}.id == null">
+							Add ${table.className}
+						</s:if>
+						<s:if test="${table.propertyName}.id != null">
+							Update ${table.className}
+						</s:if>
+					</h5>
+					<button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<h4>
+						<s:if test="${table.propertyName}.id == null">
+							Are you sure to add ${table.className}
+						</s:if>
+						<s:if test="${table.propertyName}.id != null">
+							Are you sure to update ${table.className}
+						</s:if>
+					</h4>
+				</div>
+				<div class="modal-footer">
+					<s:submit id="confirmBtn" class="btn btn-dark" value="%{${table.propertyName}.id == null ? 'Add' : 'Update'}" />
+					<a class="btn btn-dark" data-bs-dismiss="modal">Close</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<s:hidden id="${table.propertyName}Id" name="${table.propertyName}.id" />
+	<s:hidden name="${table.propertyName}.address.id" />
+	
+	<script>
+		
+		#foreach(${relationColumn} in ${table.exportedKeys})
+		function add${relationColumn.table.className}(index){
+			
+			if(index == null){
+				
+				index = $("#${relationColumn.table.propertyName}List tbody tr").length;
+			}
+			
+			var row = "";
+			
+			row += "<tr>";
+			row += "	<td>";
+			row += "		<label class='index'>" + (index + 1) + "</label>";
+			row += "	</td>";
+			row += "	<td>";
+			row += "		<input name='${table.propertyName}.${relationColumn.table.propertyName}s[" + index + "].title' type='text' class='form-control is-valid ${relationColumn.table.propertyName}sTitles required' placeholder='Title'>";
+			row += "	</td>";
+			row += "	<td>";
+			row += "		<input name='${table.propertyName}.${relationColumn.table.propertyName}s[" + index + "].year' type='tel' class='form-control is-valid ${relationColumn.table.propertyName}sYears' placeholder='Year'>";
+			row += "	</td>";
+			row += "	<td>";
+			row += "		<input type='button' class='btn btn-dark' onclick='add${relationColumn.table.className}(parentNode.parentNode.rowIndex - 1);' value='+' />";
+			row += "		<input type='button' class='btn btn-dark' onclick='delete${relationColumn.table.className}(parentNode.parentNode.rowIndex - 1);' value='-' />";
+			row += "	</td>";
+			row += "</tr>";
+			
+			if(index == $("#${relationColumn.table.propertyName}List tbody tr").length){
+				$("#${relationColumn.table.propertyName}List tbody").append(row);
+			}else{
+				$("#${relationColumn.table.propertyName}List tbody tr").eq(index).before(row);
+			}
+			
+			$("#${relationColumn.table.propertyName}List tbody tr:visible").each(function(index){
+				
+				$(this).find(".index").html(index + 1);
+			});
+			
+			$(".${relationColumn.table.propertyName}sTitles").each(function(index){
+				
+				$(this).attr("name", "${table.propertyName}.${relationColumn.table.propertyName}s[" + index + "].title");
+			});
+			
+			$(".${relationColumn.table.propertyName}sYears").each(function(index){
+				
+				$(this).attr("name", "${table.propertyName}.${relationColumn.table.propertyName}s[" + index + "].year");
+			});
+		}
+		
+		function delete${relationColumn.table.className}(index){
+			
+			if($("#${table.propertyName}Id").val() == ""){
+				$("#${relationColumn.table.propertyName}List tbody tr").eq(index).remove();
+			}else{
+				$("#${relationColumn.table.propertyName}List tbody tr").eq(index).hide();
+				$(".${relationColumn.table.propertyName}sActives").eq(index).val(false);
+			}
+			
+			$("#${relationColumn.table.propertyName}List tbody tr:visible").each(function(index){
+				
+				$(this).find(".index").html(index + 1);
+			});
+			
+			$(".${relationColumn.table.propertyName}sTitles").each(function(index){
+				
+				$(this).attr("name", "${table.propertyName}.${relationColumn.table.propertyName}s[" + index + "].title");
+			});
+			
+			$(".${relationColumn.table.propertyName}sYears").each(function(index){
+				
+				$(this).attr("name", "${table.propertyName}.${relationColumn.table.propertyName}s[" + index + "].year");
+			});
+		}
+		
+		$("#${relationColumn.table.propertyName}List tbody tr:visible").each(function(index){
+			
+			$(this).find(".index").html(index + 1);
+		});
+		#end
+		
+		function submitForm(){
+			
+			if(isValidForm()){
+				
+				$("#confirmModal").modal("show");
+			}
+		}
+		
+	</script>
+</s:form>

@@ -1,0 +1,37 @@
+package employee.entity;
+
+#if(${table.hasSqlDate})
+import java.sql.Date;
+#end
+#if(${table.hasSqlTimestamp})
+import java.sql.Timestamp;
+#end
+#if(${table.hasSqlTime})
+import java.sql.Time;
+#end
+#if(${table.hasSqlArray})
+import java.sql.Array;
+#end
+#if(${table.hasBigDecimal})
+import java.math.BigDecimal;
+#end
+
+import javax.persistence.metamodel.SingularAttribute;
+import javax.persistence.metamodel.StaticMetamodel;
+
+@StaticMetamodel(${table.className}.class)
+#if(${table.parentTable})
+public class ${table.className}_ extends ${table.parentTable.className}_ {
+#else
+public class ${table.className}_ {
+#end
+
+	#foreach(${column} in ${table.columns})
+	#if(${column.relationTable})
+	public static volatile SingularAttribute<${table.className}, ${column.relationTable.className}> ${column.relationPropertyName};
+	#end
+	#if(!${column.relationTable})
+	public static volatile SingularAttribute<${table.className}, ${column.propertyType}> ${column.propertyName};
+	#end
+	#end
+}

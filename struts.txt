@@ -1,0 +1,103 @@
+Struts 2:
+1. Java EE MVC Framework
+2. Struts Documentation and Tutorials
+	- Official Website
+	- Github
+3. Setup
+	- JDK
+	- Eclipse
+	- Tomee Plus
+4. Create Maven Project and manage dependencies
+	- Java Version
+	- Packaging
+	- Plugins
+	- Struts Core
+	- Struts Convension
+	- Struts Tiles
+5. Setup Struts XML configuration
+	- web.xml
+	- Log4j
+	- Struts.xml
+	- Internationalization
+	- Convension
+	- Tiles
+7. Define Action
+	- XML
+	- Convension
+	- Annotation on class and method level
+8. Access Request/Response/Session/ValueStack/Parameters/ServletContext
+9. LifeCycle
+	- Construction
+	- Prepare
+	- Validate
+	- Execute
+10. Struts Form Tags
+11. Primitives Instance Variables
+12. Class Objects Instance Variables
+13. Model Driven Action
+14. Internationalization
+	- request_locale Parameter
+	- I18nInterceptor.DEFAULT_SESSION_ATTRIBUTE Session Attribute
+15. File Upload
+	- Data Type is java.io.File
+	- FileName should be same as file instance variable name with appending FileName
+	- ContentType should be same as file instance variable name with appending ContentType
+16. Action Exception Mapping
+	- XML
+	- Annotation
+	- Global
+17. Form Validation
+	- XML 
+		a. ActionClassName.properties 
+		b. ActionClassName-validation.xml is same Action Class Package
+	- Annotation
+		a. Add struts2-bean-validation-plugin plugin 
+		b. package should extends struts-bean-validation
+		c. add javax validation dependency
+		d. add @Valid on Action instance variable)
+	- Custom using validate method
+		a. addActionError/addFieldError will redirect to input result
+18. Success and Error Messages with Internationalization
+		a. use addActionMessage for success message
+		b. use addActionError for error message
+19. Result Types using XML and annotations Local and Global
+	- Dispatcher
+	- Chain (Same HTTP Request)
+		- Pass Parameters
+		- Action Messages & Errors
+	- redirectAction (New HTTP Request and destroy Old HTTP request)
+		- Pass Parameters
+		- Pass Exist Parameter
+		- Action Messages & Errors
+	- redirect
+	- Tiles
+		a. add struts2-tiles-plugin dependency in POM.xml
+		b. add StrutsTilesListener listener in web.xml
+		c. add TilesResult result type support in struts.xml
+		d. add tiles.xml in WEB-INF folder
+		e. create layout pages : header/footer/menu/title
+		f. create layout page and distribute layout attribute
+		g. fill page & title tiles expression with action instance variables
+	- JSON
+		a. add struts2-json-plugin dependency in POM.xml
+		b. extends json-default package in struts.xml
+		c. use json result type
+20. Root & Default Actions
+	- index.jsp
+	- index action
+	- / action
+21. Interceptors
+	- XML
+	- Annotation
+22. Custom & Guest & Security Interceptors
+23. Tokenization (Disable Refresh & Back Button)
+24. Packages & Namespaces
+25. Themes & Bootstrap Control
+26. Sample CRUD Application using Bootstrap
+	- EJB Injection
+	- Business & Runtime Exceptions
+27. Struts 2 Sample Code Generation
+	- Download Generator package
+	- Generate Struts Actions
+	- Generate List Pages
+	- Generate Save Pages

@@ -1,0 +1,201 @@
+<%@ taglib prefix="s" uri="/struts-tags" %>
+
+<h4 class="pb-2 mt-4 mb-3 border-bottom">
+	${table.title} Management
+</h4>
+
+<s:form id="form" action="search${table.className}s">
+	<div class="card">
+		<div class="card-header fw-bold">
+			${table.title} Search
+		</div>
+		<div class="card-body">
+			<div class="row">
+				#foreach(${nestedColumn} in ${table.nestedColumns})
+				#if(${nestedColumn.type} == -7 || ${nestedColumn.type} == 16)
+				<div class="col-sm-12 col-md-6 col-lg-4">
+					<div class="mb-3">
+						<label for="${nestedColumn.table.propertyName}${nestedColumn.methodName}Search" class="form-label">${nestedColumn.title}</label>
+						<s:select id="${nestedColumn.table.propertyName}${nestedColumn.methodName}Search" list="#{null:'Active', true:'Yes', false:'No'}" name="${table.propertyName}Search.${nestedColumn.fieldModel}" class="${nestedColumn.inputSearchClass}" placeholder="${nestedColumn.title}" autocomplete="off" />
+					</div>
+				</div>
+				#elseif(!${nestedColumn.activeOrDateOrUser})
+				<div class="col-sm-12 col-md-6 col-lg-4">
+					<div class="mb-3">
+						<label for="${nestedColumn.table.propertyName}${nestedColumn.methodName}Search" class="form-label">${nestedColumn.title}</label>
+						<s:textfield id="${nestedColumn.table.propertyName}${nestedColumn.methodName}Search" name="${table.propertyName}Search.${nestedColumn.fieldModel}" type="${nestedColumn.inputType}" class="${nestedColumn.inputSearchClass}" placeholder="${nestedColumn.title}" maxlength="${nestedColumn.length}" autocomplete="off" />
+					</div>
+				</div>
+				#end
+				#end
+			</div>
+		</div>
+		<div class="card-footer text-center">
+			<s:submit class="btn btn-dark" value="Search" onclick="first(); return isValidForm();"/>
+		</div>
+	</div>
+				
+	<div class="card mt-4">
+		<div class="card-header fw-bold">
+			${table.title} List
+		</div>
+		<div class="table-responsive">
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>
+							#
+						</th>
+						#foreach(${nestedColumn} in ${table.nestedColumns})
+						#if(!${nestedColumn.activeOrDateOrUser} || ${nestedColumn.table.name} == ${table.name})
+						<th>
+							${nestedColumn.title}
+						</th>
+						#end
+						#end
+						<th>
+							<s:a class="btn btn-dark" action="toAdd${table.className}">Add</s:a>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<s:iterator value="${table.propertyName}s" status="status">
+					<tr>
+						<td>
+							<s:property value="#status.count"/>
+						</td>
+						#foreach(${nestedColumn} in ${table.nestedColumns})
+						#if(!${nestedColumn.activeOrDateOrUser} || ${nestedColumn.table.name} == ${table.name})
+						<td>
+							#if(${nestedColumn.type} == -7 || ${nestedColumn.type} == 16)
+							<s:property value="${nestedColumn.fieldModel} ? 'Yes' : 'No'"/>
+							#else
+							<s:property value="${nestedColumn.fieldModel}"/>
+							#end
+						</td>
+						#end
+						#end
+						<td>
+							<s:a class="btn btn-dark" action="toEdit${table.className}?${table.propertyName}.id=%{id}">Edit</s:a>
+							<s:if test="!active">
+							<s:a class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#activationModal" onclick="select${table.className}(%{id}, true)">Activate</s:a>
+							</s:if>
+							<s:if test="active">
+							<s:a class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#activationModal" onclick="select${table.className}(%{id}, false)">Deactivate</s:a>
+							</s:if>
+						</td>
+					</tr>
+					</s:iterator>
+				</tbody>
+			</table>
+		</div>
+		<div class="card-footer">
+			<div class="row">
+				<div class="col-3 text-start">
+					<s:if test="${table.propertyName}Search.pageNo != 1">
+					<s:submit class="btn btn-dark" value="First" onclick="first()"/>
+					<s:submit class="btn btn-dark" value="Previous" onclick="previous()"/>
+					</s:if>
+				</div>
+				<div class="col-3 text-center">
+					<label class="fw-bold">
+						<div class="row">
+							<div class="col">
+								Rows:
+							</div>
+							<div class="col">
+								<s:select name="${table.propertyName}Search.rowCount" list="{3, 5, 10, 15, 20}" class="form-control d-inline" onchange="first(); form.submit()"/>
+							</div>
+						</div>
+					</label>
+				</div>
+				<div class="col-1 text-center">
+					<label class="fw-bold pt-1">
+						Total: <s:property value="${table.propertyName}Search.totalRows"/>
+					</label>
+				</div>
+				<div class="col-2 text-center">
+					<label class="fw-bold pt-1">
+						Page <s:property value="${table.propertyName}Search.pageNo"/> of <s:property value="${table.propertyName}Search.pageCount"/>
+					</label>
+				</div>
+				<div class="col-3 text-end">
+					<s:if test="${table.propertyName}Search.pageNo != ${table.propertyName}Search.pageCount">
+					<s:submit class="btn btn-dark" value="Next" onclick="next()"/>
+					<s:submit class="btn btn-dark" value="Last" onclick="last()"/>
+					</s:if>
+				</div>
+			</div>
+		</div>
+	</div>
+	<s:hidden id="pageNo" name="${table.propertyName}Search.pageNo" />
+	<s:hidden id="pageCount" name="${table.propertyName}Search.pageCount" />
+	
+	<s:hidden id="${table.propertyName}Id" name="${table.propertyName}.id" />
+	<s:hidden id="active" name="${table.propertyName}.active" />
+	
+	<div class="modal fade" id="activationModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 id="activationTitle" class="modal-title"></h5>
+					<button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<h4 id="activationMessage"></h4>
+				</div>
+				<div class="modal-footer">
+					<s:submit id="confirmBtn" class="btn btn-dark" onclick="update${table.className}Active()"/>
+					<a class="btn btn-dark" data-bs-dismiss="modal">Close</a>
+				</div>
+			</div>
+		</div>
+	</div>
+			
+	<script>
+	
+		function first(){
+			
+			$("#pageNo").val(1);
+		}
+		
+		function previous(){
+			
+			$("#pageNo").val(Number($("#pageNo").val()) - 1);
+		}
+		
+		function next(){
+			
+			$("#pageNo").val(Number($("#pageNo").val()) + 1);
+		}
+		
+		function last(){
+			
+			$("#pageNo").val($("#pageCount").val());
+		}
+		
+		function select${table.className}(${table.propertyName}Id, active){
+			
+			$("#${table.propertyName}Id").val(${table.propertyName}Id);
+			$("#active").val(active);
+			
+			if(active){
+				
+				$("#activationTitle").html("Activate ${table.title}");
+				$("#activationMessage").html("Are you sure to activate ${table.title}");
+				$("#confirmBtn").val("Activate");
+				
+			}else{
+				
+				$("#activationTitle").html("Deactivate ${table.title}");
+				$("#activationMessage").html("Are you sure to deactivate ${table.title}");
+				$("#confirmBtn").val("Deactivate");
+			}
+		}
+		
+		function update${table.className}Active(){
+			
+			$("#form").attr("action", "update${table.className}Active");
+		}
+	</script>
+</s:form>

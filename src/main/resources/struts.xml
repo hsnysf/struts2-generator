@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.5//EN"
+    "http://struts.apache.org/dtds/struts-2.5.dtd">
+
+<struts>
+
+	<constant name="struts.devMode" value="true" />
+	<constant name="struts.convention.default.parent.package" value="default" />
+	<constant name="struts.ui.theme" value="simple" />
+	
+	<package name="default" namespace="/" extends="struts-default">
+
+		<result-types>
+			<result-type name="tiles" class="org.apache.struts2.views.tiles.TilesResult" />
+		</result-types>
+		
+		<interceptors>
+			
+			<interceptor name="ejb" class="employee.interceptor.EJBInterceptor"/>
+			<interceptor name="exception" class="employee.interceptor.ExceptionInterceptor"/>
+			
+			<interceptor-stack name="employeeStack">
+				<interceptor-ref name="ejb"/>
+				<interceptor-ref name="exception"/>
+				<interceptor-ref name="defaultStack" />
+			</interceptor-stack>
+		</interceptors>
+		
+		<default-interceptor-ref name="employeeStack" />
+		
+		<default-action-ref name="/" />
+		
+		<global-results>
+			<result name="layout" type="tiles">layout</result>
+		</global-results>
+		
+	</package>
+
+</struts>

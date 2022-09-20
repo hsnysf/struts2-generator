@@ -1,0 +1,140 @@
+package employee.action;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.ejb.EJB;
+
+import org.apache.struts2.convention.annotation.Action;
+import org.apache.struts2.convention.annotation.Result;
+import org.apache.struts2.convention.annotation.Results;
+
+import employee.bean.${table.className}Bean;
+import employee.entity.${table.className};
+
+@Action("${table.propertyName}")
+@Results({
+	@Result(name="toSuccessUpdate${table.className}Active", type = "redirect", 
+			location = "toSuccessUpdate${table.className}Active", 
+			params = {"${table.propertyName}.id", "%{${table.propertyName}.id}","${table.propertyName}.active", "%{${table.propertyName}.active}"}),
+	@Result(name = "toSuccessSave${table.className}", type = "redirect", location = "toSuccessSave${table.className}", params = {"id", "%{id}", "${table.propertyName}.id", "%{${table.propertyName}.id}"})
+})
+public class ${table.className}Action extends CommonAction{
+
+	private static final long serialVersionUID = 1L;
+	
+	private ${table.className} ${table.propertyName}Search = new ${table.className}();
+	private ${table.className} ${table.propertyName} = new ${table.className}();
+	private List<${table.className}> ${table.propertyName}s = new ArrayList<${table.className}>();
+	
+	@EJB
+	private ${table.className}Bean ${table.propertyName}Bean;
+	
+	private Integer id;
+	
+	@Action("search${table.className}s")
+	public String search${table.className}s() throws Exception {
+		
+		String result = toPage("/${table.propertyName}s-list.jsp");
+		
+		${table.propertyName}s = ${table.propertyName}Bean.search${table.className}s(${table.propertyName}Search);
+		
+		${table.propertyName}Search = ${table.propertyName}Bean.get${table.className}Count(${table.propertyName}Search);
+		
+		return result;
+	}
+	
+	@Action("update${table.className}Active")
+	public String update${table.className}Active() throws Exception {
+		
+		${table.propertyName} = ${table.propertyName}Bean.update${table.className}Active(${table.propertyName});
+		
+		return "toSuccessUpdate${table.className}Active";
+	}
+	
+	@Action("toSuccessUpdate${table.className}Active")
+	public String toSuccessUpdate${table.className}Active() throws Exception {
+		
+		if(${table.propertyName}.getActive()) {
+			addActionMessage("${table.title} " + ${table.propertyName}.getId() + " has been activated successfully");
+		}else {
+			addActionMessage("${table.title} " + ${table.propertyName}.getId() + " has been deactivated successfully");
+		}
+		
+		return search${table.className}s();
+	}
+	
+	@Action("toAdd${table.className}")
+	public String toAdd${table.className}() throws Exception {
+		
+		String result = toPage("/save-${table.propertyName}.jsp");
+		
+		${table.propertyName} = new ${table.className}();
+		
+		return result;
+	}
+	
+	@Action("toEdit${table.className}")
+	public String toEdit${table.className}() throws Exception {
+		
+		String result = toPage("/save-${table.propertyName}.jsp");
+		
+		${table.propertyName} = ${table.propertyName}Bean.get${table.className}(${table.propertyName});
+		
+		return result;
+	}
+	
+	@Action("save${table.className}")
+	public String save${table.className}() throws Exception {
+		
+		id = ${table.propertyName}.getId();
+		
+		${table.propertyName} = ${table.propertyName}Bean.save${table.className}(${table.propertyName});
+		
+		return "toSuccessSave${table.className}";
+	}
+	
+	@Action("toSuccessSave${table.className}")
+	public String toSuccessSave${table.className}() throws Exception {
+		
+		if(id == null) {
+			addActionMessage("${table.title} #" + ${table.propertyName}.getId() + " has been added successfully");
+		}else {
+			addActionMessage("${table.title} #" + ${table.propertyName}.getId() + " has been updated successfully");
+		}
+		
+		return search${table.className}s();
+	}
+	
+	public ${table.className} get${table.className}Search() {
+		return ${table.propertyName}Search;
+	}
+	
+	public void set${table.className}Search(${table.className} ${table.propertyName}Search) {
+		this.${table.propertyName}Search = ${table.propertyName}Search;
+	}
+	
+	public ${table.className} get${table.className}() {
+		return ${table.propertyName};
+	}
+	
+	public void set${table.className}(${table.className} ${table.propertyName}) {
+		this.${table.propertyName} = ${table.propertyName};
+	}
+	
+	public List<${table.className}> get${table.className}s() {
+		return ${table.propertyName}s;
+	}
+	
+	public void set${table.className}s(List<${table.className}> ${table.propertyName}s) {
+		this.${table.propertyName}s = ${table.propertyName}s;
+	}
+	
+	public Integer getId() {
+		return id;
+	}
+	
+	public void setId(Integer id) {
+		this.id = id;
+	}
+}
